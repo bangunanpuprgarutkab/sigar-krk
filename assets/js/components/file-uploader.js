@@ -84,21 +84,59 @@ export class FileUploaderComponent {
         const fileInput = this.container.querySelector('#file-input');
         const selectBtn = this.container.querySelector('#select-file-btn');
 
+        if (!dropZone) {
+            console.error('FileUploader: Drop zone element not found');
+            this.showError('Elemen drop zone tidak ditemukan. Periksa struktur HTML.');
+            return;
+        }
+
+        if (!fileInput) {
+            console.error('FileUploader: File input element not found');
+            this.showError('Elemen input file tidak ditemukan. Periksa struktur HTML.');
+            return;
+        }
+
+        if (!selectBtn) {
+            console.error('FileUploader: Select button element not found');
+            this.showError('Tombol pilih file tidak ditemukan. Periksa struktur HTML.');
+            return;
+        }
+
+        console.log('FileUploader: Binding events to elements');
+
         // Drag and drop events
-        dropZone.addEventListener('dragover', (e) => this.handleDragOver(e));
-        dropZone.addEventListener('dragleave', (e) => this.handleDragLeave(e));
-        dropZone.addEventListener('drop', (e) => this.handleDrop(e));
-        
+        dropZone.addEventListener('dragover', (e) => {
+            console.log('FileUploader: Drag over event');
+            this.handleDragOver(e);
+        });
+        dropZone.addEventListener('dragleave', (e) => {
+            console.log('FileUploader: Drag leave event');
+            this.handleDragLeave(e);
+        });
+        dropZone.addEventListener('drop', (e) => {
+            console.log('FileUploader: Drop event');
+            this.handleDrop(e);
+        });
+
         // Click to select
-        selectBtn.addEventListener('click', () => fileInput.click());
+        selectBtn.addEventListener('click', () => {
+            console.log('FileUploader: Select button clicked');
+            fileInput.click();
+        });
         dropZone.addEventListener('click', (e) => {
+            console.log('FileUploader: Drop zone clicked');
             if (e.target === dropZone || e.target.closest('.uploader-content')) {
                 fileInput.click();
             }
         });
-        
+
         // File input change
-        fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+        fileInput.addEventListener('change', (e) => {
+            console.log('FileUploader: File input changed', e.target.files);
+            this.handleFileSelect(e);
+        });
+
+        console.log('FileUploader: All events bound successfully');
     }
 
     handleDragOver(e) {
@@ -139,32 +177,52 @@ export class FileUploaderComponent {
     }
 
     async processFiles(files) {
-        if (this.isUploading) return;
-        
+        console.log('FileUploader: Starting to process files', files);
+
+        if (this.isUploading) {
+            console.warn('FileUploader: Upload already in progress');
+            this.showError('Upload sedang berlangsung. Tunggu hingga selesai.');
+            return;
+        }
+
+        if (!files || files.length === 0) {
+            console.warn('FileUploader: No files provided');
+            this.showError('Tidak ada file yang dipilih.');
+            return;
+        }
+
         performanceMonitor.startTiming('fileUpload');
-        
+
         try {
+            console.log('FileUploader: Validating files');
             // Validate files
             const validFiles = this.validateFiles(files);
-            if (validFiles.length === 0) return;
-            
+            if (validFiles.length === 0) {
+                console.warn('FileUploader: No valid files after validation');
+                return;
+            }
+
+            console.log('FileUploader: Starting upload process for', validFiles.length, 'files');
             this.isUploading = true;
             this.showProgress();
-            
+
             // Process files
             for (let i = 0; i < validFiles.length; i++) {
                 const file = validFiles[i];
+                console.log('FileUploader: Processing file', i + 1, 'of', validFiles.length, ':', file.name);
                 await this.processFile(file, i, validFiles.length);
             }
-            
+
+            console.log('FileUploader: All files processed successfully');
             this.hideProgress();
             this.isUploading = false;
-            
+
             performanceMonitor.endTiming('fileUpload');
-            
+
         } catch (error) {
-            console.error('File processing error:', error);
-            this.showError(error.message || ERROR_MESSAGES.PARSING_ERROR);
+            console.error('FileUploader: File processing error:', error);
+            const errorMessage = error.message || ERROR_MESSAGES.PARSING_ERROR;
+            this.showError(`Error: ${errorMessage}`);
             this.hideProgress();
             this.isUploading = false;
             performanceMonitor.endTiming('fileUpload');
