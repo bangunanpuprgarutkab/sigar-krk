@@ -1,0 +1,16 @@
+{
+  "name": "Aplikasi Generator KRK - Kabupaten Garut",
+  "short_name": "Generator KRK",
+  "description": "Aplikasi Generator Keterangan Rencana Kota (KRK) untuk Kabupaten Garut - Dinas PUPR",
+  "start_url": "/index-refactored.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0D47A1",
+  "icons": [
+    {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lambang_Kabupaten_Garut.svg/192px-Lambang_Kabupaten_Garut.svg.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
