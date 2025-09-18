@@ -62,7 +62,25 @@ export const ERROR_MESSAGES = {
     NETWORK_ERROR: 'Terjadi kesalahan jaringan. Periksa koneksi internet Anda.',
     PARSING_ERROR: 'Gagal memproses file. Pastikan format file benar.',
     SAVE_ERROR: 'Gagal menyimpan data. Coba lagi.',
-    TEMPLATE_ERROR: 'Gagal memuat template dokumen.'
+    TEMPLATE_ERROR: 'Gagal memuat template dokumen.',
+    UPLOAD_IN_PROGRESS: 'Upload sedang berlangsung. Tunggu hingga selesai.',
+    NO_FILES_SELECTED: 'Tidak ada file yang dipilih.',
+    ELEMENT_NOT_FOUND: 'Elemen UI tidak ditemukan. Periksa struktur HTML.',
+    VALIDATION_FAILED: 'Validasi file gagal.',
+    PROCESSING_FAILED: 'Gagal memproses file. Coba lagi.',
+    STORAGE_ERROR: 'Gagal menyimpan file ke penyimpanan lokal.',
+    MEMORY_ERROR: 'Memori tidak cukup untuk memproses file.',
+    BROWSER_NOT_SUPPORTED: 'Browser tidak mendukung fitur yang diperlukan.',
+    PERMISSION_DENIED: 'Izin akses file ditolak.',
+    QUOTA_EXCEEDED: 'Kuota penyimpanan terlampaui.',
+    TIMEOUT_ERROR: 'Waktu pemrosesan habis. Coba file yang lebih kecil.',
+    CORRUPTED_FILE: 'File rusak atau tidak valid.',
+    GEOJSON_INVALID: 'Format GeoJSON tidak valid.',
+    IMAGE_LOAD_ERROR: 'Gagal memuat gambar.',
+    MAP_RENDER_ERROR: 'Gagal merender peta.',
+    AI_ANALYSIS_ERROR: 'Gagal melakukan analisis AI.',
+    EXPORT_ERROR: 'Gagal mengekspor data.',
+    IMPORT_ERROR: 'Gagal mengimpor data.'
 };
 
 // Success Messages
@@ -139,5 +157,7 @@ export const FEATURE_FLAGS = {
     CACHING: true,
     PERFORMANCE_MONITORING: true,
     DARK_MODE: true,
-    OFFLINE_MODE: false
+    OFFLINE_MODE: false,
+    DEBUG_MODE: true, // Enable detailed error logging and debugging info
+    VERBOSE_LOGGING: true // Enable verbose console logging
 };

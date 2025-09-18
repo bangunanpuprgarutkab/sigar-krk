@@ -152,7 +152,11 @@ class KRKApplication {
             }
         } catch (error) {
             console.error('Error selecting project:', error);
-            this.showError('Gagal memuat proyek');
+            if (FEATURE_FLAGS.DEBUG_MODE) {
+                this.showError(`Gagal memuat proyek: ${error.message}`);
+            } else {
+                this.showError('Gagal memuat proyek');
+            }
         }
         
         performanceMonitor.endTiming('projectSelect');
@@ -350,12 +354,29 @@ class KRKApplication {
 
     async initializeFileUploader(project) {
         const uploaderContainer = document.getElementById('file-uploader');
-        if (!uploaderContainer) return;
-        
-        this.components.fileUploader = new FileUploaderComponent(
-            uploaderContainer,
-            (fileData, file) => this.onFileUploaded(project, fileData, file)
-        );
+        if (!uploaderContainer) {
+            console.error('FileUploader: Container element not found');
+            if (FEATURE_FLAGS.DEBUG_MODE) {
+                this.showError('Container file uploader tidak ditemukan. Periksa ID elemen HTML.');
+            }
+            return;
+        }
+
+        try {
+            console.log('Initializing file uploader component');
+            this.components.fileUploader = new FileUploaderComponent(
+                uploaderContainer,
+                (fileData, file) => this.onFileUploaded(project, fileData, file)
+            );
+            console.log('File uploader component initialized successfully');
+        } catch (error) {
+            console.error('Error initializing file uploader:', error);
+            if (FEATURE_FLAGS.DEBUG_MODE) {
+                this.showError(`Gagal menginisialisasi file uploader: ${error.message}`);
+            } else {
+                this.showError('Gagal menginisialisasi file uploader');
+            }
+        }
     }
 
     async initializeMap() {
