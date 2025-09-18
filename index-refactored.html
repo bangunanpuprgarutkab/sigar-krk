@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Generator KRK - Kabupaten Garut (Refactored)</title>
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://unpkg.com">
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5.3.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons 1.11.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Leaflet 1.9.4 CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0D47A1">
+    
+    <!-- SEO and Performance -->
+    <meta name="description" content="Aplikasi Generator Keterangan Rencana Kota (KRK) untuk Kabupaten Garut - Dinas PUPR">
+    <meta name="keywords" content="KRK, Garut, PUPR, Rencana Kota, Generator">
+    <meta name="author" content="Dinas PUPR Kabupaten Garut">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="assets/js/app.js" as="script">
+    <link rel="preload" href="assets/js/config.js" as="script">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lambang_Kabupaten_Garut.svg/1751px-Lambang_Kabupaten_Garut.svg.png" 
+                     alt="Logo Kabupaten Garut" loading="lazy">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/Logo_PU_%28RGB%29.jpg" 
+                     alt="Logo PUPR" loading="lazy">
+                <span class="d-none d-lg-block">Aplikasi Generator KRK</span>
+            </a>
+            <span class="navbar-text d-lg-none flex-grow-1 text-center fw-bold">Generator KRK</span>
+            <div class="navbar-nav">
+                <button class="btn btn-outline-info me-2" type="button" onclick="aiFeedbackUI.toggle()" title="AI Statistics & Feedback">
+                    <i class="bi bi-graph-up"></i> AI Stats
+                </button>
+                <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                    <i class="bi bi-gear-fill"></i> Pengaturan
+                </button>
+                <button class="btn btn-outline-info" type="button" id="performance-stats-btn" title="Statistik Performance">
+                    <i class="bi bi-speedometer2"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Performance Stats Modal -->
+    <div class="modal fade" id="performanceStatsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Statistik Performance</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="performance-stats-content">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Memory Usage</h6>
+                                <div id="memory-stats"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Cache Statistics</h6>
+                                <div id="cache-stats"></div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Storage Usage</h6>
+                                <div id="storage-stats"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Project Statistics</h6>
+                                <div id="project-stats"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" id="clear-cache-btn">
+                        <i class="bi bi-trash"></i> Clear Cache
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Container for Notifications -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100">
+        <div id="saveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-success text-white">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <strong class="me-auto">Sukses</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div id="saveToastBody" class="toast-body">
+                Proyek berhasil disimpan.
+            </div>
+        </div>
+        
+        <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-danger text-white">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong class="me-auto">Error</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div id="errorToastBody" class="toast-body">
+                Terjadi kesalahan.
+            </div>
+        </div>
+        
+        <div id="infoToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-info text-white">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                <strong class="me-auto">Info</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div id="infoToastBody" class="toast-body">
+                Informasi.
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Left Column: Project Management -->
+            <div class="col-md-3" id="project-list-container">
+                <div class="p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="mb-0">Manajemen Proyek</h4>
+                        <span class="badge bg-secondary" id="project-count">0</span>
+                    </div>
+                    <div class="d-grid mb-3">
+                        <button class="btn btn-primary" id="new-project-btn">
+                            <i class="bi bi-plus-circle-fill"></i> Buat Proyek Baru
+                        </button>
+                    </div>
+                    
+                    <!-- Project List Component will be rendered here -->
+                    <div id="project-list"></div>
+                </div>
+            </div>
+
+            <!-- Right Column: Workspace -->
+            <main class="col-md-9" id="workspace">
+                <!-- Loading skeleton -->
+                <div id="workspace-skeleton" class="d-none">
+                    <div class="skeleton skeleton-card mb-3"></div>
+                    <div class="skeleton skeleton-card mb-3"></div>
+                    <div class="skeleton skeleton-card"></div>
+                </div>
+                
+                <!-- Workspace content will be dynamically loaded here -->
+                <div id="workspace-content">
+                    <div class="text-center d-flex flex-column align-items-center justify-content-center h-100">
+                        <i class="bi bi-files text-muted" style="font-size: 4rem;"></i>
+                        <h3 class="mt-3">Selamat Datang di Aplikasi Generator KRK</h3>
+                        <p class="lead">Buat proyek baru atau pilih dari daftar untuk memulai.</p>
+                        <div class="mt-3">
+                            <button class="btn btn-primary btn-lg" id="quick-start-btn">
+                                <i class="bi bi-rocket-takeoff"></i> Mulai Cepat
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Floating Action Button for AI Chat -->
+    <button id="perda-chat-fab" class="btn btn-primary btn-lg rounded-circle shadow" 
+            title="Tanya Ahli Perda" data-bs-toggle="modal" data-bs-target="#perdaChatModal">
+        <i class="bi bi-chat-quote-fill"></i>
+    </button>
+    
+    <!-- Loading Spinner -->
+    <div id="loading-spinner" class="d-none spinner-container">
+        <div class="spinner-content">
+            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p id="spinner-text" class="fs-5 mb-0">Memproses...</p>
+            <div class="progress mt-2" style="width: 200px;">
+                <div id="spinner-progress" class="progress-bar" role="progressbar" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Modals will be loaded dynamically -->
+    <div id="modals-container"></div>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => console.log('SW registered'))
+                    .catch(error => console.log('SW registration failed'));
+            });
+        }
+    </script>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Lazy load non-critical libraries -->
+    <script>
+        // Lazy load libraries when needed
+        window.loadLibrary = function(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        };
+    </script>
+    
+    <!-- Main Application -->
+    <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>

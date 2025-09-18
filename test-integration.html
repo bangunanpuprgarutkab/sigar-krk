@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Test - KRK Generator</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    
+    <style>
+        .test-section {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .test-result {
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+        }
+        .test-pass {
+            background-color: #d1edff;
+            color: #0d6efd;
+        }
+        .test-fail {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .test-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>🧪 Integration Test - KRK Generator</h1>
+        <p class="lead">Testing semua workflow dan komponen yang telah direfactor</p>
+        
+        <div class="row">
+            <div class="col-md-8">
+                <!-- Test Results -->
+                <div id="test-results">
+                    <div class="test-section">
+                        <h4>📦 Component Loading Tests</h4>
+                        <div id="component-tests"></div>
+                    </div>
+                    
+                    <div class="test-section">
+                        <h4>💾 Storage Tests</h4>
+                        <div id="storage-tests"></div>
+                    </div>
+                    
+                    <div class="test-section">
+                        <h4>🤖 AI Integration Tests</h4>
+                        <div id="ai-tests"></div>
+                    </div>
+                    
+                    <div class="test-section">
+                        <h4>🗺️ Map Component Tests</h4>
+                        <div id="map-tests"></div>
+                    </div>
+                    
+                    <div class="test-section">
+                        <h4>📄 Document Generation Tests</h4>
+                        <div id="document-tests"></div>
+                    </div>
+                    
+                    <div class="test-section">
+                        <h4>⚡ Performance Tests</h4>
+                        <div id="performance-tests"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <!-- Test Controls -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Test Controls</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" id="run-all-tests">
+                                <i class="bi bi-play-fill"></i> Run All Tests
+                            </button>
+                            <button class="btn btn-outline-secondary" id="run-component-tests">
+                                Component Tests
+                            </button>
+                            <button class="btn btn-outline-secondary" id="run-storage-tests">
+                                Storage Tests
+                            </button>
+                            <button class="btn btn-outline-secondary" id="run-ai-tests">
+                                AI Tests
+                            </button>
+                            <button class="btn btn-outline-secondary" id="run-performance-tests">
+                                Performance Tests
+                            </button>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="test-stats">
+                            <h6>Test Statistics</h6>
+                            <div class="row text-center">
+                                <div class="col">
+                                    <div class="text-success fs-4" id="pass-count">0</div>
+                                    <small>Passed</small>
+                                </div>
+                                <div class="col">
+                                    <div class="text-danger fs-4" id="fail-count">0</div>
+                                    <small>Failed</small>
+                                </div>
+                                <div class="col">
+                                    <div class="text-warning fs-4" id="pending-count">0</div>
+                                    <small>Pending</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Performance Monitor -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6>Performance Monitor</h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="performance-monitor">
+                            <div class="small">
+                                <div>Memory: <span id="memory-usage">-</span></div>
+                                <div>Cache Hit: <span id="cache-hit-ratio">-</span></div>
+                                <div>Load Time: <span id="load-time">-</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Framework -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script type="module">
+        // Simple test framework
+        class TestFramework {
+            constructor() {
+                this.tests = [];
+                this.results = {
+                    pass: 0,
+                    fail: 0,
+                    pending: 0
+                };
+            }
+
+            test(name, testFn) {
+                this.tests.push({ name, testFn });
+            }
+
+            async runTests() {
+                this.results = { pass: 0, fail: 0, pending: 0 };
+                
+                for (const test of this.tests) {
+                    try {
+                        const result = await test.testFn();
+                        this.logResult(test.name, result, 'pass');
+                        this.results.pass++;
+                    } catch (error) {
+                        this.logResult(test.name, error.message, 'fail');
+                        this.results.fail++;
+                    }
+                }
+                
+                this.updateStats();
+            }
+
+            logResult(testName, message, status) {
+                const container = document.getElementById('test-results');
+                const resultDiv = document.createElement('div');
+                resultDiv.className = `test-result test-${status}`;
+                resultDiv.innerHTML = `
+                    <strong>${testName}:</strong> ${message}
+                    <i class="bi bi-${status === 'pass' ? 'check-circle' : 'x-circle'} float-end"></i>
+                `;
+                
+                // Find appropriate section
+                const sections = {
+                    'Component': 'component-tests',
+                    'Storage': 'storage-tests',
+                    'AI': 'ai-tests',
+                    'Map': 'map-tests',
+                    'Document': 'document-tests',
+                    'Performance': 'performance-tests'
+                };
+                
+                let targetSection = 'component-tests';
+                for (const [key, sectionId] of Object.entries(sections)) {
+                    if (testName.includes(key)) {
+                        targetSection = sectionId;
+                        break;
+                    }
+                }
+                
+                document.getElementById(targetSection).appendChild(resultDiv);
+            }
+
+            updateStats() {
+                document.getElementById('pass-count').textContent = this.results.pass;
+                document.getElementById('fail-count').textContent = this.results.fail;
+                document.getElementById('pending-count').textContent = this.results.pending;
+            }
+        }
+
+        // Initialize test framework
+        const testFramework = new TestFramework();
+
+        // Component Loading Tests
+        testFramework.test('Component - Config Module', async () => {
+            const { CONFIG } = await import('./assets/js/config.js');
+            if (!CONFIG.PROJECTS_KEY) throw new Error('CONFIG not loaded properly');
+            return 'Config module loaded successfully';
+        });
+
+        testFramework.test('Component - Performance Utils', async () => {
+            const { performanceMonitor } = await import('./assets/js/utils/performance.js');
+            if (!performanceMonitor) throw new Error('Performance monitor not loaded');
+            return 'Performance utilities loaded successfully';
+        });
+
+        testFramework.test('Component - Storage Core', async () => {
+            const { projectStorage } = await import('./assets/js/core/storage.js');
+            if (!projectStorage) throw new Error('Project storage not loaded');
+            return 'Storage core loaded successfully';
+        });
+
+        testFramework.test('Component - Project List', async () => {
+            const { ProjectListComponent } = await import('./assets/js/components/project-list.js');
+            if (!ProjectListComponent) throw new Error('ProjectListComponent not loaded');
+            return 'Project list component loaded successfully';
+        });
+
+        testFramework.test('Component - AI Integration', async () => {
+            const { aiIntegration } = await import('./assets/js/components/ai-integration.js');
+            if (!aiIntegration) throw new Error('AI integration not loaded');
+            return 'AI integration component loaded successfully';
+        });
+
+        testFramework.test('Component - Modal Manager', async () => {
+            const { modalManager } = await import('./assets/js/components/modal-manager.js');
+            if (!modalManager) throw new Error('Modal manager not loaded');
+            return 'Modal manager loaded successfully';
+        });
+
+        testFramework.test('Component - Document Generator', async () => {
+            const { documentGenerator } = await import('./assets/js/components/document-generator.js');
+            if (!documentGenerator) throw new Error('Document generator not loaded');
+            return 'Document generator loaded successfully';
+        });
+
+        // Storage Tests
+        testFramework.test('Storage - LocalStorage Access', async () => {
+            const { LocalStorageManager } = await import('./assets/js/core/storage.js');
+            if (!LocalStorageManager.isAvailable()) throw new Error('LocalStorage not available');
+            
+            // Test set/get
+            LocalStorageManager.set('test_key', 'test_value');
+            const value = LocalStorageManager.get('test_key');
+            if (value !== 'test_value') throw new Error('LocalStorage set/get failed');
+            
+            LocalStorageManager.remove('test_key');
+            return 'LocalStorage operations working correctly';
+        });
+
+        testFramework.test('Storage - Project CRUD', async () => {
+            const { projectStorage } = await import('./assets/js/core/storage.js');
+            
+            // Test project creation
+            const testProject = {
+                projectName: 'Test Project',
+                geojsonData: null,
+                analysisResult: null
+            };
+            
+            const success = projectStorage.addProject(testProject);
+            if (!success) throw new Error('Failed to add project');
+            
+            // Test project retrieval
+            const projects = projectStorage.getAllProjects();
+            const foundProject = projects.find(p => p.projectName === 'Test Project');
+            if (!foundProject) throw new Error('Failed to retrieve project');
+            
+            // Cleanup
+            projectStorage.deleteProject(foundProject.id);
+            
+            return 'Project CRUD operations working correctly';
+        });
+
+        // AI Integration Tests
+        testFramework.test('AI - Configuration Check', async () => {
+            const { aiIntegration } = await import('./assets/js/components/ai-integration.js');
+            
+            const stats = aiIntegration.getStats();
+            if (typeof stats.isConfigured !== 'boolean') throw new Error('AI stats not working');
+            
+            return `AI integration status: ${stats.isConfigured ? 'Configured' : 'Not configured'}`;
+        });
+
+        // Performance Tests
+        testFramework.test('Performance - Memory Monitor', async () => {
+            const { performanceMonitor } = await import('./assets/js/utils/performance.js');
+            
+            performanceMonitor.startTiming('test_operation');
+            // Simulate some work
+            await new Promise(resolve => setTimeout(resolve, 10));
+            const duration = performanceMonitor.endTiming('test_operation');
+            
+            if (typeof duration !== 'number') throw new Error('Performance monitoring not working');
+            
+            return `Performance monitoring working (${duration.toFixed(2)}ms)`;
+        });
+
+        testFramework.test('Performance - Cache System', async () => {
+            const { globalCache } = await import('./assets/js/utils/performance.js');
+            
+            globalCache.set('test_cache_key', 'test_cache_value');
+            const cachedValue = globalCache.get('test_cache_key');
+            
+            if (cachedValue !== 'test_cache_value') throw new Error('Cache system not working');
+            
+            const stats = globalCache.getStats();
+            if (typeof stats.hitRatio !== 'number') throw new Error('Cache stats not working');
+            
+            globalCache.delete('test_cache_key');
+            
+            return `Cache system working (Hit ratio: ${(stats.hitRatio * 100).toFixed(1)}%)`;
+        });
+
+        // Document Generation Tests
+        testFramework.test('Document - Template Status', async () => {
+            const { documentGenerator } = await import('./assets/js/components/document-generator.js');
+            
+            const status = await documentGenerator.getTemplateStatus();
+            if (!status.hasOwnProperty('hasCustomTemplate')) throw new Error('Template status check failed');
+            
+            return `Template system working (Status: ${status.status})`;
+        });
+
+        // Performance monitoring
+        function updatePerformanceMonitor() {
+            if (performance.memory) {
+                const memoryMB = (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(1);
+                document.getElementById('memory-usage').textContent = `${memoryMB} MB`;
+            }
+            
+            // Update load time
+            const loadTime = performance.now();
+            document.getElementById('load-time').textContent = `${loadTime.toFixed(0)} ms`;
+        }
+
+        // Event listeners
+        document.getElementById('run-all-tests').addEventListener('click', async () => {
+            // Clear previous results
+            document.querySelectorAll('[id$="-tests"]').forEach(el => el.innerHTML = '');
+            
+            await testFramework.runTests();
+            updatePerformanceMonitor();
+        });
+
+        // Auto-run tests on load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('run-all-tests').click();
+            }, 1000);
+        });
+
+        // Update performance monitor periodically
+        setInterval(updatePerformanceMonitor, 2000);
+    </script>
+</body>
+</html>
